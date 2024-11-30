@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import messagebox
+from tkinter import filedialog
 
 # Função para atualizar o contador de linhas e caracteres
 def atualizar_contadores():
@@ -20,8 +21,18 @@ def salvar_arquivo():
     if texto.strip() == "":
         messagebox.showwarning("Aviso", "O campo de texto está vazio.")
         return
+
+    # Abre a caixa de diálogo para escolher onde salvar o arquivo
+    caminho_arquivo = filedialog.asksaveasfilename(
+        defaultextension=".txt", filetypes=[("Text Files", "*.txt"), ("All Files", "*.*")],
+        title="Salvar como"
+    )
+    
+    if not caminho_arquivo:  # Se o usuário cancelar, o caminho será uma string vazia
+        return
+
     try:
-        with open("bloco_de_notas.txt", "w") as file:
+        with open(caminho_arquivo, "w") as file:
             file.write(texto)
         messagebox.showinfo("Sucesso", "Arquivo salvo com sucesso!")
     except Exception as e:
