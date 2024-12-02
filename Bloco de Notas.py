@@ -6,10 +6,12 @@ from tkinter import filedialog
 def atualizar_contadores(event=None):
     texto = text_area.get("1.0", "end-1c")  # Obtém o conteúdo da caixa de texto
     linhas = texto.splitlines()  # Separa o texto em linhas
+    num_linhas = len(linhas)
     num_caracteres_com_espaco = len(texto)
     num_caracteres_sem_espaco = len(texto.replace(" ", ""))
 
     # Atualiza os rótulos com as contagens
+    label_linhas.config(text=f"Linhas: {num_linhas}")
     label_caracteres_com_espaco.config(text=f"Caracteres (com espaços): {num_caracteres_com_espaco}")
     label_caracteres_sem_espaco.config(text=f"Caracteres (sem espaços): {num_caracteres_sem_espaco}")
 
@@ -71,6 +73,13 @@ linha_numbers = tk.Text(
     bg="#bdc3c7", fg="#2c3e50", state="disabled"
 )
 linha_numbers.pack(side="left", fill="y")
+
+# Configuração do contador de linhas (Label)
+label_linhas = tk.Label(
+    root, text="Linhas: 0", font=("Arial", 12, "bold"),
+    bg="#2c3e50", fg="#ecf0f1", anchor="w"
+)
+label_linhas.grid(row=0, column=0, padx=10, pady=10, sticky="nw")
 
 # Adiciona uma barra de rolagem vertical
 scrollbar = tk.Scrollbar(text_frame, orient="vertical", command=sincronizar_rolagem)
