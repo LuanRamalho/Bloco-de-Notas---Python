@@ -6,7 +6,6 @@ from tkinter import filedialog
 def atualizar_contadores(event=None):
     texto = text_area.get("1.0", "end-1c")  # Obtém o conteúdo da caixa de texto
     linhas = texto.splitlines()  # Separa o texto em linhas
-    num_linhas = len(linhas)
     num_caracteres_com_espaco = len(texto)
     num_caracteres_sem_espaco = len(texto.replace(" ", ""))
 
@@ -20,12 +19,18 @@ def atualizar_contadores(event=None):
 # Função para exibir os números das linhas
 def atualizar_numeros_linhas():
     texto_linhas = ""
-    for i in range(1, int(text_area.index("end").split(".")[0])):
+    total_linhas = int(text_area.index("end-1c").split(".")[0])  # Conta o número total de linhas
+    for i in range(1, total_linhas + 1):  # Inclui todas as linhas
         texto_linhas += f"{i}\n"
     linha_numbers.config(state="normal")
     linha_numbers.delete("1.0", "end")
     linha_numbers.insert("1.0", texto_linhas)
     linha_numbers.config(state="disabled")
+
+# Função para sincronizar a rolagem entre a área de texto e a numeração de linhas
+def sincronizar_rolagem(*args):
+    linha_numbers.yview(*args)
+    text_area.yview(*args)
 
 # Função para salvar o conteúdo em um arquivo .txt
 def salvar_arquivo():
@@ -58,22 +63,33 @@ root.config(bg="#2c3e50")
 
 # Frame para a numeração de linhas e a área de texto
 text_frame = tk.Frame(root, bg="#2c3e50")
-text_frame.grid(row=0, column=1, padx=15, pady=15)
+text_frame.grid(row=0, column=1, padx=15, pady=15, sticky="nsew")
 
 # Configuração da numeração de linhas
 linha_numbers = tk.Text(
-    text_frame, width=4, height=20, font=("Arial", 14),
+    text_frame, width=4, font=("Arial", 14),
     bg="#bdc3c7", fg="#2c3e50", state="disabled"
 )
 linha_numbers.pack(side="left", fill="y")
+
+# Adiciona uma barra de rolagem vertical
+scrollbar = tk.Scrollbar(text_frame, orient="vertical", command=sincronizar_rolagem)
+scrollbar.pack(side="right", fill="y")
 
 # Configuração da caixa de texto (Text Area)
 text_area = tk.Text(
     text_frame, wrap=tk.WORD, width=60, height=20,
     font=("Arial", 14), bg="#ecf0f1", fg="#2c3e50",
-    highlightbackground="#2980b9", highlightthickness=2
+    highlightbackground="#2980b9", highlightthickness=2,
+    yscrollcommand=scrollbar.set  # Vincula o Text à barra de rolagem
 )
 text_area.pack(side="right", fill="both", expand=True)
+
+# Vincula a barra de rolagem à área de texto e ao contador de linhas
+scrollbar.config(command=sincronizar_rolagem)
+text_area.config(yscrollcommand=scrollbar.set)
+linha_numbers.config(yscrollcommand=scrollbar.set)
+
 text_area.bind("<KeyRelease>", atualizar_contadores)  # Atualiza contadores e números de linha ao digitar
 
 # Configuração do contador de caracteres com e sem espaços (Labels)
@@ -101,6 +117,10 @@ botao_salvar.grid(row=3, column=1, pady=20, padx=15)
 # Adiciona uma moldura decorativa
 moldura = tk.Frame(root, bg="#16a085", width=10, height=500)
 moldura.grid(row=0, column=2, rowspan=4, sticky="ns")
+
+# Permite que os widgets se expandam ao redimensionar a janela
+root.grid_rowconfigure(0, weight=1)
+root.grid_columnconfigure(1, weight=1)
 
 # Inicializa os números de linha
 atualizar_numeros_linhas()
