@@ -2,8 +2,8 @@ import tkinter as tk
 from tkinter import messagebox
 from tkinter import filedialog
 
-# Função para atualizar o contador de linhas e caracteres
-def atualizar_contadores():
+# Função para atualizar os contadores de linhas, caracteres e números das linhas
+def atualizar_contadores(event=None):
     texto = text_area.get("1.0", "end-1c")  # Obtém o conteúdo da caixa de texto
     linhas = texto.splitlines()  # Separa o texto em linhas
     num_linhas = len(linhas)
@@ -11,9 +11,21 @@ def atualizar_contadores():
     num_caracteres_sem_espaco = len(texto.replace(" ", ""))
 
     # Atualiza os rótulos com as contagens
-    label_linhas.config(text=f"Linhas: {num_linhas}")
     label_caracteres_com_espaco.config(text=f"Caracteres (com espaços): {num_caracteres_com_espaco}")
     label_caracteres_sem_espaco.config(text=f"Caracteres (sem espaços): {num_caracteres_sem_espaco}")
+
+    # Atualiza os números de linha
+    atualizar_numeros_linhas()
+
+# Função para exibir os números das linhas
+def atualizar_numeros_linhas():
+    texto_linhas = ""
+    for i in range(1, int(text_area.index("end").split(".")[0])):
+        texto_linhas += f"{i}\n"
+    linha_numbers.config(state="normal")
+    linha_numbers.delete("1.0", "end")
+    linha_numbers.insert("1.0", texto_linhas)
+    linha_numbers.config(state="disabled")
 
 # Função para salvar o conteúdo em um arquivo .txt
 def salvar_arquivo():
@@ -44,21 +56,25 @@ root.title("Bloco de Notas Colorido")
 root.geometry("940x680")
 root.config(bg="#2c3e50")
 
+# Frame para a numeração de linhas e a área de texto
+text_frame = tk.Frame(root, bg="#2c3e50")
+text_frame.grid(row=0, column=1, padx=15, pady=15)
+
+# Configuração da numeração de linhas
+linha_numbers = tk.Text(
+    text_frame, width=4, height=20, font=("Arial", 14),
+    bg="#bdc3c7", fg="#2c3e50", state="disabled"
+)
+linha_numbers.pack(side="left", fill="y")
+
 # Configuração da caixa de texto (Text Area)
 text_area = tk.Text(
-    root, wrap=tk.WORD, width=60, height=20,
+    text_frame, wrap=tk.WORD, width=60, height=20,
     font=("Arial", 14), bg="#ecf0f1", fg="#2c3e50",
     highlightbackground="#2980b9", highlightthickness=2
 )
-text_area.grid(row=0, column=1, padx=15, pady=15)
-text_area.bind("<KeyRelease>", lambda event: atualizar_contadores())  # Atualiza contadores ao digitar
-
-# Configuração do contador de linhas (Label)
-label_linhas = tk.Label(
-    root, text="Linhas: 0", font=("Arial", 12, "bold"),
-    bg="#2c3e50", fg="#ecf0f1", anchor="w"
-)
-label_linhas.grid(row=0, column=0, padx=10, pady=10, sticky="nw")
+text_area.pack(side="right", fill="both", expand=True)
+text_area.bind("<KeyRelease>", atualizar_contadores)  # Atualiza contadores e números de linha ao digitar
 
 # Configuração do contador de caracteres com e sem espaços (Labels)
 label_caracteres_com_espaco = tk.Label(
@@ -85,6 +101,9 @@ botao_salvar.grid(row=3, column=1, pady=20, padx=15)
 # Adiciona uma moldura decorativa
 moldura = tk.Frame(root, bg="#16a085", width=10, height=500)
 moldura.grid(row=0, column=2, rowspan=4, sticky="ns")
+
+# Inicializa os números de linha
+atualizar_numeros_linhas()
 
 # Inicia o programa
 root.mainloop()
